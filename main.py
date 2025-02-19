@@ -1,10 +1,26 @@
 #!/usr/bin/env python3
 
 #adding the libraries
+import os
 from flask import Flask, request
 from flask_restful import Resource, Api #base modules for API
 from flask_restful import fields, marshal_with #data formatting
-import mysql.connector
+import sqlite3
+
+#adding personal modules
+from utils import createDbTable
+
+#setup, database check/creation
+databaseName = 'blogs'
+tableName = 'posts'
+
+fileCheck = os.listdir()
+if 'blogs.db' in fileCheck:
+    pass
+else:
+    createDbTable.setup(databaseName, tableName)
+    print(f"Created {databaseName}.db with table {tableName}")
+
 
 app = Flask(__name__)
 api = Api(app)
