@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
 
-#adding the libraries
+#INFO: adding the libraries
 import os
 from flask import Flask, request
 from flask_restful import Resource, Api #base modules for API
 from flask_restful import fields, marshal_with #data formatting
 import sqlite3
 
-#adding personal modules
 from utils import createDbTable
 
-#setup, database check/creation
+#INFO: setup, database check/creation
 databaseName = 'blogs'
 tableName = 'posts'
-
 fileCheck = os.listdir()
 if 'blogs.db' in fileCheck:
     pass
 else:
     createDbTable.setup(databaseName, tableName)
     print(f"Created {databaseName}.db with table {tableName}")
+# DONE: Database setup
 
-
+#INFO: API setup
 app = Flask(__name__)
 api = Api(app)
 
-#defining the blog structure
+#INFO: Defining the blog structure
 blogFields = {
     'id': fields.Integer,
     'title': fields.String,
@@ -35,7 +34,7 @@ blogFields = {
     'createdAt': fields.String,
     'updatedAt': fields.String,
 }
-
+#TODO: Add the api parameters later
 class blog(Resource):
     def get(self, blogID):
         pass
