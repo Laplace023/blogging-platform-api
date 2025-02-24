@@ -3,8 +3,8 @@
 #INFO: adding the libraries
 import os
 from flask import Flask, request
-from flask_restful import Resource, Api #base modules for API
-from flask_restful import fields, marshal_with #data formatting
+from flask_restful import Resource, Api #NOTE: base modules for API
+from flask_restful import fields, marshal_with #NOTE: data formatting
 import sqlite3
 
 from utils import createDbTable
@@ -18,7 +18,7 @@ if 'blogs.db' in fileCheck:
 else:
     createDbTable.setup(databaseName, tableName)
     print(f"Created {databaseName}.db with table {tableName}")
-# DONE: Database setup
+#DONE: Database setup
 
 #INFO: API setup
 app = Flask(__name__)
@@ -43,4 +43,10 @@ class blog(Resource):
     def put(self, blogID):
         pass
 
+#TODO: Add a create function
+class blogCreate(Resource):
+    def post(self, blogID):
+        #TODO: create the sql query
+        
+        pass
     
