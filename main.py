@@ -37,12 +37,18 @@ blogFields = {
 #TODO: Add the api parameters later
 class blog(Resource):
     def get(self, blogID):
+        #INFO: Database setup
         conn = sqlite3.connect('blogs.db')
         conn.row_factory = sqlite3.Row 
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM posts WHERE id='{blogID}'")
-        data = cursor.fetchall()
-        return data
+        #NOTE: Query
+        data = cursor.execute(f"SELECT * FROM posts WHERE id='{blogID}'").fetchall()
+        #NOTE: Transforming the data into dictionary
+        #NOTE: This line is new to me and have to ask GPT to explain what it does
+        dataDict = dict(zip([c[0] for c in cursor.description], data[0]))
+        #NOTE: Result
+        return dataDict
+    
     def delete(self, blogID):
         pass
     def put(self, blogID):
@@ -52,7 +58,6 @@ class blog(Resource):
 class blogCreate(Resource):
     def post(self, blogID):
         #TODO: create the sql query
-        
         pass
 
 api.add_resource(blog, '/blogs/<blogID>')

@@ -12,5 +12,7 @@ for x in c.description:
 for y in data[0]:
     print(y)
 
-data = dict(zip([c[0] for c in c.description], data[0]))
+data = data[0]
+print(data)
+data = [c[0] for c in c.description]
 print(data)
