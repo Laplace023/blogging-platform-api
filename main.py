@@ -37,7 +37,12 @@ blogFields = {
 #TODO: Add the api parameters later
 class blog(Resource):
     def get(self, blogID):
-        pass
+        conn = sqlite3.connect('blogs.db')
+        conn.row_factory = sqlite3.Row 
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM posts WHERE id='{blogID}'")
+        data = cursor.fetchall()
+        return data
     def delete(self, blogID):
         pass
     def put(self, blogID):
@@ -49,4 +54,9 @@ class blogCreate(Resource):
         #TODO: create the sql query
         
         pass
-    
+
+api.add_resource(blog, '/blogs/<blogID>')
+
+#INFO: Debugger
+if __name__ == '__main__':
+    app.run(debug=True)
