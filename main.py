@@ -27,6 +27,9 @@ api = Api(app)
 #INFO Parsing setup
 parse = reqparse.RequestParser()
 parse.add_argument('content', location='form')
+parse.add_argument('title', location='form')
+parse.add_argument('category', location='form')
+parse.add_argument('tags', location='form')
 
 #INFO: Entry validation,404, function
 def validateEntry(blogID):
@@ -94,19 +97,46 @@ class blog(Resource):
         cursor = conn.cursor()
         #NOTE: Query
         cursor.execute(f"""
-        UPDATE posts
-        set content='{content}', updatedAt='{updatedAt}'
-        WHERE id='{blogID}'
+            UPDATE posts
+            set content='{content}', updatedAt='{updatedAt}'
+            WHERE id='{blogID}'
         """)
         conn.commit()
+        data = cursor.execute(f"""
+            SELECT * FROM posts 
+            WHERE id='{blogID}'
+        """).fetchall()
+        dataDict = dict(zip([c[0] for c in cursor.description], data[0]))
         conn.close()
-        return 201
+        return dataDict, 201
 
 #TODO: Add a create function
 class blogCreate(Resource):
     def post(self):
         #TODO: create the sql query
-        pass
+        args = parse.parse_args()
+        title = args['title']
+        content = args['content']
+        category = args['category']
+        tags = args['tags']
+        id = generateId.id()
+        createdAt = generateTimeNow.timeNow()
+        conn = sqlite3.connect('blogs.db')
+        cursor = conn.cursor()
+        #NOTE: Query
+        cursor.execute(f"""
+        INSERT INTO posts
+        VALUES ('{id}', '{title}', '{content}', '{category}', '{tags}', '{createdAt}', 'N/A')
+        """)
+        conn.commit()
+        data = cursor.execute(f"""
+            SELECT * FROM posts 
+            WHERE id='{id}'
+        """).fetchall()
+        dataDict = dict(zip([c[0] for c in cursor.description], data[0]))
+        conn.close()
+
+        return dataDict, 202
 
 api.add_resource(blog, '/blogs/<blogID>')
 api.add_resource(blogCreate, '/blogs')
