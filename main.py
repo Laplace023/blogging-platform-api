@@ -4,10 +4,10 @@
 import os
 from flask import Flask, request
 from flask_restful import Resource, Api #NOTE: base modules for API
-from flask_restful import fields, marshal_with, reqparse #NOTE: data formatting
+from flask_restful import fields, marshal_with, reqparse, abort #NOTE: data formatting
 import sqlite3
 
-from utils import createDbTable
+from utils import createDbTable, generateTimeNow,generateId
 
 #INFO: setup, database check/creation
 databaseName = 'blogs'
@@ -26,7 +26,21 @@ api = Api(app)
 
 #INFO Parsing setup
 parse = reqparse.RequestParser()
-parse.add_argument('title', location='form')
+parse.add_argument('content', location='form')
+
+#INFO: Entry validation,404, function
+def validateEntry(blogID):
+    conn = sqlite3.connect('blogs.db')
+    cursor = conn.cursor()
+    #NOTE: Query
+    data = cursor.execute("""
+        SELECT DISTINCT id
+        FROM posts
+        """).fetchall()
+    listData = [x[0] for x in data]
+
+    if str(blogID) not in listData:
+        abort(http_status_code=404, message="does not exist")
 
 #INFO: Defining the blog structure
 blogFields = {
@@ -39,10 +53,10 @@ blogFields = {
     'updatedAt': fields.String,
 }
 
-    
 #TODO: Add the api parameters later
 class blog(Resource):
     def get(self, blogID):
+        validateEntry(blogID)
         conn = sqlite3.connect('blogs.db')
         cursor = conn.cursor()
         #NOTE: Query
@@ -57,8 +71,8 @@ class blog(Resource):
         #NOTE: Result
         return dataDict, 200
     
-    
     def delete(self, blogID):
+        validateEntry(blogID)
         conn = sqlite3.connect('blogs.db')
         cursor = conn.cursor()
         #NOTE: Query
@@ -70,28 +84,32 @@ class blog(Resource):
         conn.close()
         #NOTE: Result
         return 204
+    
     def put(self, blogID):
+        validateEntry(blogID)
+        updatedAt = generateTimeNow.timeNow()
         args = parse.parse_args()
-        data = args['title'] #NOTE: fetches from title e.g. -d title=<data_given>
+        content = args['content'] #NOTE: fetches from title e.g. -d title=<data_given>
         conn = sqlite3.connect('blogs.db')
         cursor = conn.cursor()
         #NOTE: Query
         cursor.execute(f"""
         UPDATE posts
-        set title='{data}'
+        set content='{content}', updatedAt='{updatedAt}'
         WHERE id='{blogID}'
         """)
         conn.commit()
         conn.close()
-        return data, 201
+        return 201
 
 #TODO: Add a create function
 class blogCreate(Resource):
-    def post(self, blogID):
+    def post(self):
         #TODO: create the sql query
         pass
 
 api.add_resource(blog, '/blogs/<blogID>')
+api.add_resource(blogCreate, '/blogs')
 
 #INFO: Debugger
 if __name__ == '__main__':
