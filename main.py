@@ -137,6 +137,15 @@ class blogCreate(Resource):
         conn.close()
 
         return dataDict, 202
+    def get(self):
+        conn = sqlite3.connect('blogs.db')
+        cursor = conn.cursor()
+        #NOTE: Query
+        data = cursor.execute(f"""
+        SELECT * FROM posts
+        """).fetchall()
+        return data
+
 
 api.add_resource(blog, '/blogs/<blogID>')
 api.add_resource(blogCreate, '/blogs')
