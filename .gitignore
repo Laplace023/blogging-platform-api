@@ -2,3 +2,4 @@ instructions.txt
 .venv/
 .vscode/
 testTools/
+blogs.db
